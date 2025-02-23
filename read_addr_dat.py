@@ -28,23 +28,49 @@ addr_buf = bytes()
 
 
 # Заполнение буфера данными
-def addr_init(addr_file_name):
+def addr_init(seg_path):
     global addr_buf
-    with open(addr_file_name, 'rb') as f:
+    with open(f'{seg_path}/addr.dat', 'rb') as f:
         addr_buf = f.read()
+    return addr_buf.__len__()
 
 
 # Извлекаем номер сегмента, номер файла, ссылку на запись в refs.dat
-def get_seg_file_refs():
-    s_1 = struct.Struct('@ H H H H H H I')
+def get_link_to_refs():
+    s_1 = struct.Struct('= H H H H H H I')  # '=' упаковка без выравнивания на границу
 
     addr_offset = 0x0100
     while addr_offset < len(addr_buf):
         field_1, active, field_2, marker, file, seg, refs_link = s_1.unpack_from(addr_buf, addr_offset)
-        print(f'{addr_offset:08x}: {field_1:04x} {active:04x} {field_2:04x} {marker:04x} {file:04x} {seg:04x} {refs_link:08x}')
-        # здесь обработка active seg file refs_link
+        # print(f'{addr_offset:08x}: {field_1:04x} {active:04x} {field_2:04x} {marker:04x} {file:04x} {seg:04x} {refs_link:08x}')
         addr_offset += s_1.size
+        if refs_link != 0:
+            yield seg, file, refs_link
 
 
-addr_init('/papillon1.db/00228001.i/addr.dat')
-get_seg_file_refs()
+# Отладка, печатаем заголовки и их offset
+def addr_print_all_headers():
+    global addr_buf
+    len_buf = len(addr_buf)
+
+    addr_header = struct.Struct('= H H H H H H I')  # '=' упаковка без выравнивания на границу
+    addr_rec_len = 0x0010
+    addr_offset = 0x0100
+    while addr_offset < len_buf:
+        f_1, active, f_2, lm, file, segm, link = addr_header.unpack_from(addr_buf, addr_offset)
+        print(f'{addr_offset:08x}: {f_1:04x} {active:04x} {f_2:04x} {lm:04x} {segm:04x}{file:04x} {link:08x}')
+        addr_offset += addr_rec_len
+
+# ===================================================
+# Отладка
+# addr_init('/papillon1.db/00548001.i')
+# addr_init('/papillon1.db/00258020.i')
+# ab_len = addr_init('/papillon1.db/001d8001.i')
+# print(f'длина файла: {ab_len}')
+# addr_print_all_headers()
+
+
+# for segment in papillon_segments.lm_seg_list():
+#     addr_init(segment)
+
+# get_addr_file_refs()
