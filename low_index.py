@@ -58,10 +58,6 @@ import papillon_db
 papillon_db_name = './data/papillon.sqlite.db'
 
 
-def fp_tp_list():
-    pass
-
-
 def print_interesting(rs, l, rf):
     max_ind = rs[l][2] if rs[l][2] > rs[l+1][2] else rs[l+1][2]
     print(f'\n{rf}.[flh,pth]')
