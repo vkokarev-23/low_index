@@ -54,7 +54,7 @@ import struct
 
 import read_segments
 import papillon_db
-# from papillon_db import papillon_db_name
+
 papillon_db_name = './data/papillon.sqlite.db'
 
 
@@ -64,13 +64,13 @@ def fp_tp_list():
 
 def print_interesting(rs, l, rf):
     max_ind = rs[l][2] if rs[l][2] > rs[l+1][2] else rs[l+1][2]
-    print(f'\n{rf}')
-    print(f'good: {rs[l][0]} ({rs[l][1]}, {rs[l+1][1]})  {max_ind}')
+    print(f'\n{rf}.[flh,pth]')
+    print(f'good: "{rs[l][0]}" ({rs[l][1]}, {rs[l+1][1]})  {max_ind}')
 
 
 def find_interesting(rs, rf):
-    # rf файл рекомендательногосписке
-    # rs - список следов в рексписке: СК СЛ Инд
+    # rs - список следов в рексписке: СК, СЛ, Инд ['230180Д-16-0028', '5', 4485]
+    # rf имя файла рекомендательного списка
     rs.sort()
     for l in range(len(rs) - 1):
         if rs[l][0] != rs[l+1][0]:  # номера СК разные - не интересно
@@ -146,7 +146,7 @@ def fp_tp_recom_observ(seg_path):
         # Если мы сюда попали, значит файлы рексписков 'flh' или 'pth', или оба сразу существуют.
         # В них, в секции Answer, ссылки на совпавшие следы: база-макросегмент-сегмент-файл (номера).
         # Мы декодируем номера, найдем соответствующие тексты и накопим их в sk_list
-        # в виде: номер_карточки-номер_следа-индекс_совпадения.
+        # в виде: номер_карточки, номер_следа, индекс_совпадения.
 
         sk_list = []
         for file_ext in 'flh', 'pth':
@@ -158,7 +158,8 @@ def fp_tp_recom_observ(seg_path):
                 get_sk_list_from_buff(sk_list, recom_buf)
 
         # Находим случаи, когда человек оставил два или более следов
-        find_interesting(sk_list, recom_file)
+        reс_file = f'{seg_path}/recom/{file}'   # имя файла без расширения
+        find_interesting(sk_list, reс_file)
 
     recom_lists.close()
 

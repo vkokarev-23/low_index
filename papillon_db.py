@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import socket
 
 import read_addr_dat
 import read_refs_dat
@@ -11,8 +12,25 @@ otladka = ''
 
 def make_papillon_db(papillon_db_name):
 
+    # Готовим каталог под БД: ./data
+    dir_data = os.path.dirname(papillon_db_name)
+    if os.path.exists(dir_data):
+        if os.path.isfile(dir_data):
+            os.remove(dir_data)
+            os.mkdir(dir_data)
+    else:
+        os.mkdir(dir_data)
+
+    # Удаляем старую БД, если сохранилась
     if os.path.exists(papillon_db_name):
         os.remove(papillon_db_name)
+
+    # Проверяем наличие порта 8800 - файловый сервер АДИС
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(("localhost", 8800))
+    if result != 0:
+        print("Порт 8800 закрыт. Запусти /home/p8bin/a8.fs &")
+        exit()
 
     connection = sqlite3.connect(f'{papillon_db_name}')
     cursor = connection.cursor()
