@@ -120,25 +120,27 @@ def clear_papillon_db(papillon_db_name):
     connection.close()
 
 
-def get_sled_papillon_db(papillon_db_name, db_key):
+def init_sled_papillon_db(papillon_db_name):
 
     connection = sqlite3.connect(f'{papillon_db_name}')
     cursor = connection.cursor()
-    cursor.execute(
-            f'SELECT ncard, nsled  FROM sled  WHERE bamasefi = "{db_key}" '
-            )
 
-            # f'SELECT ncard, nsled  FROM sled  WHERE bamasefi IN ("{db_key}") '
-            # f'SELECT ncard, nsled  FROM sled  WHERE bamasefi IN ( '00228001.00000007', )',
-            # f'{db_key}')
-    card_sled = cursor.fetchall()
+    def get_sled(db_key):
 
-    connection.commit()
-    connection.close()
-    return card_sled
+        nonlocal cursor
+
+        cursor.execute(
+                f'SELECT ncard, nsled  FROM sled  WHERE bamasefi = "{db_key}" '
+                )
+        card_sled = cursor.fetchall()
+        return card_sled
+
+    # connection.commit()
+    # connection.close()
+    return get_sled
 
 # ================================================
-# Отладка. Внимание! Запусти /home/p8bin/a8.fs &
+# Отладка.
 # papillon_db_name = './data/papillon.sqlite.db'
 # make_papillon_db(papillon_db_name)
 # load_papillon_db(papillon_db_name)
@@ -147,4 +149,10 @@ def get_sled_papillon_db(papillon_db_name, db_key):
 # res = get_sled_papillon_db(papillon_db_name, full_key)
 # print(f'{type(res)}   {res}')
 
+# get_sled_papillon_db = init_sled_papillon_db(papillon_db_name)
+# res = get_sled_papillon_db('00228001.00000008')
+# res = get_sled_papillon_db('00258000.8000001c')
+# res = get_sled_papillon_db('00258000.8000001d')
+# res = get_sled_papillon_db('00258000.8000001e')
+# res = get_sled_papillon_db('00258000.8000001f')
 

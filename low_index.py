@@ -56,7 +56,7 @@ import read_segments
 import papillon_db
 
 papillon_db_name = './data/papillon.sqlite.db'
-
+get_sled_papillon_db = None
 
 def print_interesting(rs, l, rf):
     max_ind = rs[l][2] if rs[l][2] > rs[l+1][2] else rs[l+1][2]
@@ -78,6 +78,7 @@ def find_interesting(rs, rf):
 
 def get_sk_list_from_buff(sk_list, rec_buf):
 
+    global get_sled_papillon_db
     struct_fptp_record_len = struct.Struct('= I')           # длина записи
     struct_fptp_record_answer = struct.Struct('= H H I')    # база, макросегмент, файл
     struct_fptp_record_index = struct.Struct('= H')         # индекс совпадения
@@ -100,7 +101,7 @@ def get_sk_list_from_buff(sk_list, rec_buf):
         # print(f'sql_key: {sql_key}')
 
         # получаем из базы номер СК, номер СЛ, добавляем индекс совпадения
-        res = papillon_db.get_sled_papillon_db(papillon_db_name, full_key)
+        res = get_sled_papillon_db(full_key)
 
         # делаем такое вот sk_string: ['230180Д-16-0028', '5', 4485]
         if len(res) == 0:
@@ -180,6 +181,7 @@ if __name__ == '__main__':
     # Загружаем в БД данные о следах
     papillon_db.make_papillon_db(papillon_db_name)
     papillon_db.load_papillon_db(papillon_db_name)
+    get_sled_papillon_db = papillon_db.init_sled_papillon_db(papillon_db_name)
 
     # Бегаем по сегментам ДК, рекспискам К-С, ищем интересные
     for seg_path in read_segments.fp_seg_list():
